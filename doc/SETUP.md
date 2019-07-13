@@ -20,9 +20,9 @@ The build requirements are not well aligned, you will need *both* versions 2 and
 
 The steps to install the pre-requisites are:
 
-$ sudo yum install -y epel-release centos-release-scl
+$ sudo yum install -y epel-release centos-release-scl 
 
-$ sudo yum install -y cmake cmake3 git devtoolset-7-gcc-c++ patch bison flex
+$ sudo yum install -y cmake cmake3 git devtoolset-7-gcc-c++ patch bison flex ninja-build
 
 ## Get the code
 
@@ -44,7 +44,9 @@ $ git clone https://github.com/intel/llvm-patches llvm_patches
 
 $ git clone https://github.com/intel/intel-graphics-compiler igc
 
-$ git clone git@github.com:intel/gmmlib.git gmmlib
+$ git clone https://github.com/intel/gmmlib.git gmmlib
+
+$ git clone https://github.com/intel/compute-runtime.git neo
 
 $ mkdir build
 
@@ -52,12 +54,14 @@ At the end of this, you should have a layout which looks like:
 
 opencl_env
     | - igc
+    | - gmmlib
     | - llvm_patches
     | - llvm_source
-         | - projects
-                | - clang
-                | - llvm-spirv
-                | - opencl-clang
+    |    | - projects
+    |           | - clang
+    |           | - llvm-spirv
+    |           | - opencl-clang
+    | - neo
 
 ## Build GMMLib
 
@@ -67,7 +71,7 @@ $ mkdir gmmlib/build
 
 $ cd gmmlib/build
 
-$ cmake -DCMAKE_BUILD_TYPE= Release -DARCH= 64 ..
+$ cmake -DCMAKE_BUILD_TYPE=Release -DARCH=64 ..
 
 $ make -j`nproc`
 
@@ -92,6 +96,19 @@ make -j`nproc`
 It's probably taken quite a while to get to this point, so here goes:
 
 $ sudo make install
+
+--- Under Review ---
+## Build the compute runtime (Neo)
+
+$ cd {build_root}
+
+$ mkdir build.neo
+
+$ cd build.neo
+
+$ scl enable devtoolset-4 "cmake3 -DBUILD_TYPE=Release -DCMAKE_BUILD_TYPE=Release ../neo"
+--- Under Review ---
+
 
 ## Verifying these steps
 
