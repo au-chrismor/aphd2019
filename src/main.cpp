@@ -2,43 +2,44 @@
 //  Copyright (C) 2019 Christopher Moran and Phui Leng Chong
 //  All Rights Reserved.
 //
+//  Name:       main.cpp
+//  Synopsis:   This is the startup routine
+//
 
-#include <opencv2/opencv.hpp>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <pthread.h>
 
-using namespace cv;
+#include "aphd.hpp"
+
 using namespace std;
 
-int main(int, char**)
+#define NUM_THREADS 2
+
+int main()
 {
-    int retCode = 0;
+   pthread_t threads[NUM_THREADS];
+   int rc;
+   int i;
+   
+#ifdef _DEBUG
+    cout << "Compiled with _DEBUG" << endl;
+#endif
 
-    Mat frame0, frame1;
+   for( i = 0; i < NUM_THREADS; i++ ) {
+#ifdef _DEBUG
+      cout << "main() : creating thread, " << i << endl;
+#endif
 
-    // Initialise capture
-    // We will use the first device we find
-    VideoCapture cap0, cap1;
-
-    cap0.open(0);
-    cap1.open(1);
-    if (cap0.isOpened() && cap1.isOpened())
-    {
-        cout << "Got a camera!";
-
-        // Configure our input data
-        cap0.set(CAP_PROP_FRAME_WIDTH, 640);
-        cap0.set(CAP_PROP_FRAME_HEIGHT, 480);
-        cap1.set(CAP_PROP_FRAME_WIDTH, 640);
-        cap1.set(CAP_PROP_FRAME_HEIGHT, 480);
-    }
-    else
-    {
-        cerr << "Failed to open a camera!";
-        retCode = -1;
-    }
-
-    return retCode;
+      rc = pthread_create(&threads[i], NULL, runThread, (void *)i);
+      
+      if (rc) {
+         cerr << "Error:unable to create thread," << rc << endl;
+         exit(-1);
+      }
+   }
+   pthread_exit(NULL);
 }
+
