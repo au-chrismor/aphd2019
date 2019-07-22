@@ -5,8 +5,12 @@
 //  Name:       main.cpp
 //  Synopsis:   This is the startup routine
 //
+//  WARNING: This will not compile with the default gcc binaries.
+//  Use at least gcc 7
+//
 
 #include <iostream>
+#include <cstdlib>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -15,8 +19,6 @@
 #include "aphd.hpp"
 
 using namespace std;
-
-#define NUM_THREADS 2
 
 int main()
 {
