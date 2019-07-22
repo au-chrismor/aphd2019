@@ -42,6 +42,29 @@ void *runThread(void *id)
         // Configure our input data
         cap.set(CAP_PROP_FRAME_WIDTH, 640);
         cap.set(CAP_PROP_FRAME_HEIGHT, 480);
+
+        int frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
+        int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
+
+        cout << "Start grabbing" << endl << "Press any key to terminate" << endl;
+
+        // This is the main capture loop
+        for(;;)
+        {
+            // Wait for a frame and buffer it
+            cap.read(frame);
+
+            // Make sure we actually got something
+            if (frame.empty())
+            {
+                cerr << "ERROR! blank frame grabbed\n";
+                break;
+            }
+
+            if (waitKey(5) >= 0)
+                break;
+        }
+
     }
     else
     {
