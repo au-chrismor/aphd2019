@@ -7,10 +7,8 @@ DEFS+=-D_HAS_GUI
 DEFS+=-D_DEBUG
 GLOBALS=Makefile aphd.hpp
 
-all:	threadtester main
+all:	main
 
 main:	main.cpp runthread.cpp $(GLOBALS)
 	$(CC) $(DEFS) -I $(INCDIR) -L $(LIBDIR) -ggdb -o main main.cpp runthread.cpp $(LIBS)
 
-threadtester:	threadtester.cpp $(GLOBALS)
-	$(CC) $(DEFS) -I $(INCDIR) -L $(LIBDIR) -ggdb -o threadtester threadtester.cpp $(LIBS)
