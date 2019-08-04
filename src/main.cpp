@@ -15,6 +15,7 @@
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
+#include <X11/Xlib.h>
 
 #include "aphd.hpp"
 
@@ -25,6 +26,9 @@ int main()
    pthread_t threads[NUM_THREADS];
    int rc;
    int i;
+
+   // Tell X11, we are multithreaded
+   XInitThreads();
    
 #ifdef _DEBUG
     cout << "Compiled with _DEBUG" << endl;

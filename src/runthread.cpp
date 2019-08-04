@@ -15,6 +15,8 @@
 
 #include "aphd.hpp"
 
+#define _HAS_STEREO_CAM
+
 using namespace std;
 using namespace cv;
 
@@ -24,21 +26,19 @@ void *runThread(void *id)
 
     idx = (long)id;
 
-    Mat frame;
+    Mat frame, frDeNoise;
+    Rect roi;
 
     // Initialise capture
     // We will use the first device we find
     VideoCapture cap;
 
 #ifdef _DEBUG
-    cout << "Thread " << idx << " starting a camera" << endl;
+    cout << "Thread " << idx << ": starting a camera" << endl;
 #endif    
     cap.open(idx);
     if (cap.isOpened())
     {
-#ifdef _DEBUG
-        cout << "Got a camera!";
-#endif
         // Configure our input data
         cap.set(CAP_PROP_FRAME_WIDTH, 640);
         cap.set(CAP_PROP_FRAME_HEIGHT, 480);
@@ -46,7 +46,16 @@ void *runThread(void *id)
         int frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
         int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
 
-        cout << "Start grabbing" << endl << "Press any key to terminate" << endl;
+        cout << "Thread " << idx << ": Start grabbing.  Press any key to terminate" << endl;
+
+        String inputName = "Input-" + std::to_string(idx);
+        String denoiseName = "DeNoise-" + std::to_string(idx);
+
+        if(idx == 0)
+        {
+            namedWindow(inputName, WINDOW_AUTOSIZE);
+            namedWindow(denoiseName, WINDOW_AUTOSIZE);
+        }
 
         // This is the main capture loop
         for(;;)
@@ -57,17 +66,51 @@ void *runThread(void *id)
             // Make sure we actually got something
             if (frame.empty())
             {
-                cerr << "ERROR! blank frame grabbed\n";
+                cerr << "Thread " << idx << ": ERROR! blank frame grabbed\n";
                 break;
             }
 
-            if (waitKey(5) >= 0)
+            if (waitKey(1) >= 0)
+            {
+                if(idx == 0)
+                {
+                    try
+                    {
+                        destroyWindow("denoiseName");
+                        destroyWindow("inputName");
+                    }
+                    catch(int e)
+                    {
+                        cerr << "Thread " << idx << ": Hiccup in exiting thread - ignored" << endl;
+                    }
+                }
                 break;
+            }
+
+            if(idx == 0)
+                imshow(inputName, frame);
+#ifdef _HAS_STEREO_CAM
+            int offset_x = frame_width / 2;
+            int offset_y = frame_height;
+            roi.x = 0;
+            roi.y = 0;
+            roi.width = offset_x;
+            roi.height = offset_y;
+            frDeNoise = frame(roi);
+//            fastNlMeansDenoisingColored(frame(roi), frDeNoise, 3.0, 3.0, 7, 21);
+#else
+            fastNlMeansDenoisingColored(frame(roi), frDeNoise, 3.0, 3.0, 7, 21);
+#endif
+            if(idx == 0)
+                imshow(denoiseName, frDeNoise);
+            
+            cout << idx << " ";
         }
 
     }
     else
     {
-        cerr << "Failed to open a camera!" << endl;
+        cerr << "Thread " << idx << "; Failed to open a camera!" << endl;
     }
+    cout << "Thread " << idx << ": Thread exit" << endl;
 }
