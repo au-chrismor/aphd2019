@@ -15,7 +15,7 @@
 
 #include "aphd.hpp"
 
-#define _HAS_STEREO_CAM
+// #define _HAS_STEREO_CAM
 
 using namespace std;
 using namespace cv;
@@ -35,7 +35,8 @@ void *runThread(void *id)
 
 #ifdef _DEBUG
     cout << "Thread " << idx << ": starting a camera" << endl;
-#endif    
+#endif
+    
     cap.open(idx);
     if (cap.isOpened())
     {
@@ -53,7 +54,7 @@ void *runThread(void *id)
 
         if(idx == 0)
         {
-            namedWindow(inputName, WINDOW_AUTOSIZE);
+//            namedWindow(inputName, WINDOW_AUTOSIZE);
             namedWindow(denoiseName, WINDOW_AUTOSIZE);
         }
 
@@ -70,25 +71,9 @@ void *runThread(void *id)
                 break;
             }
 
-            if (waitKey(1) >= 0)
-            {
-                if(idx == 0)
-                {
-                    try
-                    {
-                        destroyWindow("denoiseName");
-                        destroyWindow("inputName");
-                    }
-                    catch(int e)
-                    {
-                        cerr << "Thread " << idx << ": Hiccup in exiting thread - ignored" << endl;
-                    }
-                }
-                break;
-            }
 
-            if(idx == 0)
-                imshow(inputName, frame);
+//            if(idx == 0)
+//                imshow(inputName, frame);
 #ifdef _HAS_STEREO_CAM
             int offset_x = frame_width / 2;
             int offset_y = frame_height;
@@ -99,12 +84,30 @@ void *runThread(void *id)
             frDeNoise = frame(roi);
 //            fastNlMeansDenoisingColored(frame(roi), frDeNoise, 3.0, 3.0, 7, 21);
 #else
-            fastNlMeansDenoisingColored(frame(roi), frDeNoise, 3.0, 3.0, 7, 21);
+            //fastNlMeansDenoisingColored(frame(roi), frDeNoise, 3.0, 3.0, 7, 21);
+            frDeNoise = frame;
 #endif
             if(idx == 0)
                 imshow(denoiseName, frDeNoise);
-            
+
+            if (waitKey(10) >= 0)
+            {
+                if(idx == 0)
+                {
+                    try
+                    {
+                        destroyAllWindows();
+                    }
+                    catch(const std::exception& e)
+                    {
+                        std::cerr << e.what() << endl;
+                    }
+                }
+                break;
+            }
+#ifdef _DEBUG            
             cout << idx << " ";
+#endif            
         }
 
     }
