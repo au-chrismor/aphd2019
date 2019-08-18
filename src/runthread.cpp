@@ -15,7 +15,6 @@
 
 #include "aphd.hpp"
 
-// #define _HAS_STEREO_CAM
 
 using namespace std;
 using namespace cv;
@@ -84,7 +83,7 @@ void *runThread(void *id)
             frDeNoise = frame(roi);
 //            fastNlMeansDenoisingColored(frame(roi), frDeNoise, 3.0, 3.0, 7, 21);
 #else
-            //fastNlMeansDenoisingColored(frame(roi), frDeNoise, 3.0, 3.0, 7, 21);
+//            fastNlMeansDenoisingColored(frame, frDeNoise, 3.0, 3.0, 7, 21);
             frDeNoise = frame;
 #endif
             if(idx == 0)
