@@ -109,9 +109,9 @@ void *runThread(void *id)
                 }
                 break;
             }
-#ifdef _DEBUG            
-            cout << idx << " ";
-#endif            
+//#ifdef _DEBUG            
+//            cout << idx << " ";
+//#endif            
         }
 
     }
