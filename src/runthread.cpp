@@ -19,6 +19,31 @@
 
 using namespace std;
 using namespace cv;
+#ifdef _HAS_YOLO3
+using namespace dnn;
+#endif
+
+#ifdef _HAS_YOLO3
+// Get the names of the output layers
+vector<String> getOutputsNames(const Net& net)
+{
+    static vector<String> names;
+    if (names.empty())
+    {
+        //Get the indices of the output layers, i.e. the layers with unconnected outputs
+        vector<int> outLayers = net.getUnconnectedOutLayers();
+        
+        //get the names of all the layers in the network
+        vector<String> layersNames = net.getLayerNames();
+        
+        // Get the names of the output layers in names
+        names.resize(outLayers.size());
+        for (size_t i = 0; i < outLayers.size(); ++i)
+        names[i] = layersNames[outLayers[i] - 1];
+    }
+    return names;
+}
+#endif
 
 void *runThread(void *id)
 {
@@ -26,13 +51,25 @@ void *runThread(void *id)
 
     idx = (long)id;
 
-    Mat frame, frDeNoise;
+    int64 ticks = 0;
+
+    Mat frame, blob;
 #ifdef _HAS_STEREO_CAM
     Rect roi;
 #endif    
     HOGDescriptor hog;
     vector<Rect> found;
     VideoCapture cap;
+
+#ifdef _HAS_YOLO3
+    // Set up DNN Config
+    String modelConfiguration = "yolov3.cfg";
+    String modelWeights = "yolov3.weights";  
+    Net net = readNetFromDarknet(modelConfiguration, modelWeights);
+    net.setPreferableBackend(DNN_BACKEND_INFERENCE_ENGINE);
+    net.setPreferableTarget(DNN_TARGET_CPU);
+//  net.setPreferableTarget(DNN_TARGET_FPGA);
+#endif    
 
 #ifdef _DEBUG
     cout << "Thread " << idx << ": starting a camera" << endl;
@@ -84,6 +121,12 @@ void *runThread(void *id)
             roi.height = offset_y;
             frDeNoise = frame(roi);
 #else
+#ifdef _HAS_YOLO3
+            blobFromImage(frame, blob, 1/255.0, Size(640, 480), Scalar(0,0,0), true, false);
+            net.setInput(blob);
+            vector<Mat> outs;
+            net.forward(outs, getOutputsNames(net));
+#endif
             hog.detectMultiScale(frame, found, 0, Size(4,4), Size(8,8), 1.05, 2, false);
             for (vector<Rect>::iterator i = found.begin(); i != found.end(); ++i)
             {
@@ -94,6 +137,14 @@ void *runThread(void *id)
                 r.y += cvRound(r.height*0.07);
                 r.height = cvRound(r.height*0.8);
                 cv::rectangle(frame, r.tl() * 0.81, r.br(), cv::Scalar(0, 255, 0), 2);
+            }
+            ticks = getTickCount() - ticks;
+            
+            if(idx == 0)
+            {
+                ostringstream buf;
+                buf << "FPS: " << fixed << setprecision(1) << (getTickFrequency() / (double)ticks);
+                putText(frame, buf.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 2.0, Scalar(0, 0, 255), 2, LINE_AA);
             }
 //            if(idx == 0)
                 imshow(inputName, frame);
