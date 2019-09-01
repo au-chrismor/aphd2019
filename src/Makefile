@@ -1,8 +1,8 @@
 CC=gcc
-OPENVINODIR=/opt/intel/2019_r1.1/openvino
+OPENVINODIR=/opt/intel/2019_r2/openvino
 INCDIR=$(OPENVINODIR)/opencv/include
 LIBDIR=$(OPENVINODIR)/opencv/lib
-LIBS=-lstdc++ -lpthread -lX11 -lopencv_core -lopencv_imgproc -lopencv_videoio -lopencv_imgcodecs -lopencv_highgui -lopencv_photo
+LIBS=-lstdc++ -lpthread -lX11 -lopencv_core -lopencv_imgproc -lopencv_videoio -lopencv_imgcodecs -lopencv_highgui -lopencv_photo -lopencv_objdetect
 DEFS+=-D_HAS_GUI
 DEFS+=-D_DEBUG
 GLOBALS=Makefile aphd.hpp

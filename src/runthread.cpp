@@ -7,6 +7,7 @@
 //
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/objdetect.hpp>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -26,10 +27,11 @@ void *runThread(void *id)
     idx = (long)id;
 
     Mat frame, frDeNoise;
+#ifdef _HAS_STEREO_CAM
     Rect roi;
-
-    // Initialise capture
-    // We will use the first device we find
+#endif    
+    HOGDescriptor hog;
+    vector<Rect> found;
     VideoCapture cap;
 
 #ifdef _DEBUG
@@ -46,6 +48,8 @@ void *runThread(void *id)
         int frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
         int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
 
+        hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
+
         cout << "Thread " << idx << ": Start grabbing.  Press any key to terminate" << endl;
 
         String inputName = "Input-" + std::to_string(idx);
@@ -53,8 +57,8 @@ void *runThread(void *id)
 
         if(idx == 0)
         {
-//            namedWindow(inputName, WINDOW_AUTOSIZE);
-            namedWindow(denoiseName, WINDOW_AUTOSIZE);
+            namedWindow(inputName, WINDOW_AUTOSIZE);
+//            namedWindow(denoiseName, WINDOW_AUTOSIZE);
         }
 
         // This is the main capture loop
@@ -71,8 +75,6 @@ void *runThread(void *id)
             }
 
 
-//            if(idx == 0)
-//                imshow(inputName, frame);
 #ifdef _HAS_STEREO_CAM
             int offset_x = frame_width / 2;
             int offset_y = frame_height;
@@ -81,13 +83,16 @@ void *runThread(void *id)
             roi.width = offset_x;
             roi.height = offset_y;
             frDeNoise = frame(roi);
-//            fastNlMeansDenoisingColored(frame(roi), frDeNoise, 3.0, 3.0, 7, 21);
 #else
-//            fastNlMeansDenoisingColored(frame, frDeNoise, 3.0, 3.0, 7, 21);
-            frDeNoise = frame;
+            hog.detectMultiScale(frame, found, 0, Size(4,4), Size(8,8), 1.05, 2, false);
+            for (vector<Rect>::iterator i = found.begin(); i != found.end(); ++i)
+            {
+                Rect &r = *i;
+                cv::rectangle(frame, r.tl() * 0.81, r.br(), cv::Scalar(0, 255, 0), 2);
+            }
+//            if(idx == 0)
+                imshow(inputName, frame);
 #endif
-            if(idx == 0)
-                imshow(denoiseName, frDeNoise);
 
             if (waitKey(10) >= 0)
             {
@@ -115,4 +120,14 @@ void *runThread(void *id)
         cerr << "Thread " << idx << "; Failed to open a camera!" << endl;
     }
     cout << "Thread " << idx << ": Thread exit" << endl;
+}
+
+void adjustRect(Rect & r)
+{
+    // The HOG detector returns slightly larger rectangles than the real objects,
+    // so we slightly shrink the rectangles to get a nicer output.
+    r.x += cvRound(r.width*0.1);
+    r.width = cvRound(r.width*0.8);
+    r.y += cvRound(r.height*0.07);
+    r.height = cvRound(r.height*0.8);
 }
