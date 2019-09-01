@@ -88,6 +88,11 @@ void *runThread(void *id)
             for (vector<Rect>::iterator i = found.begin(); i != found.end(); ++i)
             {
                 Rect &r = *i;
+                // Tweak the rectange to closer approximation
+                r.x += cvRound(r.width*0.1);
+                r.width = cvRound(r.width*0.8);
+                r.y += cvRound(r.height*0.07);
+                r.height = cvRound(r.height*0.8);
                 cv::rectangle(frame, r.tl() * 0.81, r.br(), cv::Scalar(0, 255, 0), 2);
             }
 //            if(idx == 0)
@@ -120,14 +125,4 @@ void *runThread(void *id)
         cerr << "Thread " << idx << "; Failed to open a camera!" << endl;
     }
     cout << "Thread " << idx << ": Thread exit" << endl;
-}
-
-void adjustRect(Rect & r)
-{
-    // The HOG detector returns slightly larger rectangles than the real objects,
-    // so we slightly shrink the rectangles to get a nicer output.
-    r.x += cvRound(r.width*0.1);
-    r.width = cvRound(r.width*0.8);
-    r.y += cvRound(r.height*0.07);
-    r.height = cvRound(r.height*0.8);
 }
