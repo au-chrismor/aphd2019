@@ -29,6 +29,13 @@ int main()
    int rc;
    int i;
 
+// For debugging, discover OpenCL
+	cv::ocl::Context ctx = cv::ocl::Context::getDefault();
+	if (!ctx.ptr())
+	{
+		cerr << "OpenCL is not available" << endl;
+	}
+
    // Tell X11, we are multithreaded
    XInitThreads();
    
