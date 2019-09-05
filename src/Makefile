@@ -1,5 +1,5 @@
 CC=gcc
-OPENVINODIR=/opt/intel/2019_r2/openvino
+OPENVINODIR=/opt/intel/2019_r1/openvino
 INCDIR=$(OPENVINODIR)/opencv/include
 LIBDIR=$(OPENVINODIR)/opencv/lib
 LIBS=-lstdc++ -lpthread -lX11 -lopencv_core -lopencv_imgproc -lopencv_videoio -lopencv_imgcodecs -lopencv_highgui -lopencv_photo -lopencv_objdetect -lopencv_dnn
