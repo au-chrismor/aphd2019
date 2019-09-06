@@ -8,17 +8,21 @@
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/objdetect.hpp>
+#include <opencv2/core/ocl.hpp>
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
+#include <inference_engine.hpp>
+#include <ie_plugin_dispatcher.hpp>
 
 #include "aphd.hpp"
 
 
 using namespace std;
 using namespace cv;
+using namespace ocl;
 #ifdef _HAS_YOLO3
 using namespace dnn;
 #endif
@@ -53,7 +57,7 @@ void *runThread(void *id)
 
     int64 ticks = 0;
 
-    Mat frame, blob;
+    UMat frame, blob;
 #ifdef _HAS_STEREO_CAM
     Rect roi;
 #endif    

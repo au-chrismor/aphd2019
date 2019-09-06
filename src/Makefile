@@ -1,6 +1,6 @@
 CC=gcc
 OPENVINODIR=/opt/intel/2019_r1/openvino
-INCDIR=$(OPENVINODIR)/opencv/include
+INCDIR=$(OPENVINODIR)/opencv/include -I $(OPENVINODIR)/deployment_tools/inference_engine/include
 LIBDIR=$(OPENVINODIR)/opencv/lib
 LIBS=-lstdc++ -lpthread -lX11 -lopencv_core -lopencv_imgproc -lopencv_videoio -lopencv_imgcodecs -lopencv_highgui -lopencv_photo -lopencv_objdetect -lopencv_dnn
 DEFS+=-D_HAS_GUI
