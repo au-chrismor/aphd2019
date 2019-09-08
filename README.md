@@ -22,21 +22,23 @@ To build this project, you will need the following components:
 
 ## Building the code
 
-1.  It is best to start on a clean installation.  Most of our development and testing was carried out with Centos
+1.  It is best to start on a clean installation.  Most of our development and testing was carried out with Centos.
 
 2.  Follow the Terasic setup instructions, paying special attention to the versions listed.  In essence the sequence is:
 
-2.1  Install OpenCL Runtime
+2.1  Install OpenCL Runtime.
 
-2.2  Install OpenVINO
+2.2  Install OpenVINO.
 
-2.3  Install the Terasic BSP
+2.3  Install the Terasic BSP.  Make sure that the aclpci driver loads and that "aocl diagnose" reports a healthy board.
 
-2.4  Update gcc 
+2.4  Update gcc.
 
 2.5  Compile and test the Terasic samples.  If these don't load, stop and fix any problems first!
 
-2.6  Run "make: from the "src" directory to build the application
+2.5.1  If the samples don't work, you can test the environment using the "cpu" flag to force the system NOT to use the FPGA modules.  This will allow you to sanity check your environment.
+
+2.6  Run "make: from the "src" directory to build the application.
 
 ## Hardware setup
 
