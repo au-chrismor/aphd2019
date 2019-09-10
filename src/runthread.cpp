@@ -9,6 +9,9 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/core/ocl.hpp>
+#ifdef _WRITE_VIDEO
+#include <opencv2/videoio.hpp>
+#endif
 #include <iostream>
 #include <stdio.h>
 #include <string.h>
@@ -63,7 +66,9 @@ void *runThread(void *id)
 #endif    
     HOGDescriptor hog;
     vector<Rect> found;
+#ifdef _WRITE_VIDEO    
     VideoCapture cap;
+#endif    
 
 #ifdef _HAS_YOLO3
     // Set up DNN Config
@@ -88,6 +93,15 @@ void *runThread(void *id)
 
         int frame_width = cap.get(CAP_PROP_FRAME_WIDTH);
         int frame_height = cap.get(CAP_PROP_FRAME_HEIGHT);
+#ifdef _WRITE_VIDEO        
+        int ex = static_cast<int>(cap.get(CAP_PROP_FOURCC));
+        char EXT[] = {(char)(ex & 0XFF) , (char)((ex & 0XFF00) >> 8),(char)((ex & 0XFF0000) >> 16),(char)((ex & 0XFF000000) >> 24), 0};
+        VideoWriter out;
+#ifdef _DEBUG
+        cout << "FOURCC = " << ex << endl;
+        cout << EXT << endl;
+#endif
+#endif
 
         hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
 
@@ -95,7 +109,15 @@ void *runThread(void *id)
 
         String inputName = "Input-" + std::to_string(idx);
         String denoiseName = "DeNoise-" + std::to_string(idx);
+#ifdef _WRITE_VIDEO        
+        String videoName = "Output-" + std::to_string(idx) + ".mjpg";
 
+        out.open(videoName, 0x4745504d, cap.get(CAP_PROP_FPS), Size(frame_width, frame_height), true);
+#ifdef _DEBUG        
+        if(out.isOpened())
+            cout << "Video " + videoName + " Opened" << endl;
+#endif            
+#endif
         if(idx == 0)
         {
             namedWindow(inputName, WINDOW_AUTOSIZE);
@@ -152,10 +174,17 @@ void *runThread(void *id)
             }
 //            if(idx == 0)
                 imshow(inputName, frame);
+#ifdef _WRITE_VIDEO                
+                out.write(frame);
+#endif                
 #endif
 
             if (waitKey(10) >= 0)
             {
+                cap.release();
+#ifdef _WRITE_VIDEO                
+                out.release();
+#endif                
                 if(idx == 0)
                 {
                     try
