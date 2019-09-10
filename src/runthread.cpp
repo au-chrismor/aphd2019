@@ -112,7 +112,8 @@ void *runThread(void *id)
 #ifdef _WRITE_VIDEO        
         String videoName = "Output-" + std::to_string(idx) + ".mjpg";
 
-        out.open(videoName, 0x4745504d, cap.get(CAP_PROP_FPS), Size(frame_width, frame_height), true);
+//        out.open(videoName, 0x4745504d, cap.get(CAP_PROP_FPS), Size(frame_width, frame_height), true);
+        out.open(videoName, 0x4745504d, 1, Size(frame_width, frame_height), true);
 #ifdef _DEBUG        
         if(out.isOpened())
             cout << "Video " + videoName + " Opened" << endl;
