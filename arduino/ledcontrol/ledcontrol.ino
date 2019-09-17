@@ -6,8 +6,10 @@
 //  Synopsis:   Drive display devices for aphd
 //
 
-#define LEFT  10
-#define RIGHT 9
+#define LEFT    10
+#define RIGHT   9
+#define LED_ON  128
+#define LED_OFF 0
 
 char Channel(String buffer) {
   int idx = buffer.indexOf(":");
@@ -43,10 +45,18 @@ void loop() {
     switch(Channel(buffer))
     {
       case 'L':
-        analogWrite(LEFT, Level(buffer));
+      case 'l':
+        if (Level(buffer) > 0)
+          analogWrite(LEFT, LED_ON);
+        else
+          analogWrite(LEFT, LED_OFF);
         break;
       case 'R':
-        analogWrite(RIGHT, Level(buffer));
+      case 'r':
+        if (Level(buffer) > 0)
+          analogWrite(RIGHT, LED_ON);
+        else
+          analogWrite(RIGHT, LED_OFF);
         break;
     }
   }
