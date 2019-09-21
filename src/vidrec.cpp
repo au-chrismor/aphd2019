@@ -32,7 +32,7 @@ int main()
     String inputName = "vrecIn";
     int64 ticks = 0;
 
-    cap.open(1);
+    cap.open(0);
 
     if (cap.isOpened())
     {
