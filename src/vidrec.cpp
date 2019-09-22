@@ -53,7 +53,7 @@ int main()
         String videoName = "vRecOut.mjpg";
 
 //        out.open(videoName, 0x4745504d, cap.get(CAP_PROP_FPS), Size(frame_width, frame_height), true);
-        out.open(videoName, 0x4745504d, 1, Size(frame_width, frame_height), true);
+        out.open(videoName, 0x4745504d, 10, Size(frame_width, frame_height), true);
 #endif
         namedWindow(inputName, WINDOW_AUTOSIZE);
 
@@ -69,7 +69,7 @@ int main()
             ostringstream buf;
 //            buf << "FPS: " << fixed << setprecision(1) << (getTickFrequency() / (double)ticks);
             buf << "FPS: " << fixed << setprecision(1) << ((double)ticks / getTickFrequency());
-            putText(frame, buf.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 2.0, Scalar(0, 0, 255), 2, LINE_AA);
+//            putText(frame, buf.str(), Point(10, 30), FONT_HERSHEY_PLAIN, 2.0, Scalar(0, 0, 255), 2, LINE_AA);
             imshow(inputName, frame);
 #ifdef _WRITE_VIDEO
             out.write(frame);
