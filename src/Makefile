@@ -1,4 +1,4 @@
-CC=gcc
+CC=gcc -std=c++11 -std=gnu++11
 OPENVINODIR=/opt/intel/2019_r1/openvino
 INCDIR=$(OPENVINODIR)/opencv/include -I $(OPENVINODIR)/deployment_tools/inference_engine/include
 LIBDIR=$(OPENVINODIR)/opencv/lib
